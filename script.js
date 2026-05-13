@@ -1,3 +1,19 @@
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "projeto-boutique.firebaseapp.com",
+  databaseURL: "https://projeto-boutique-default-rtdb.firebaseio.com",
+  projectId: "projeto-boutique",
+  storageBucket: "projeto-boutique.firebasestorage.app",
+  messagingSenderId: "586822447202",
+  appId: "1:586822447202:web:19e4bc9f17158e88f1a13b"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+
+
 const STORAGE_KEY = 'modaBellaProducts';
 
 let editMode = false;
@@ -39,13 +55,25 @@ const defaultProducts = [
    STORAGE
 ======================= */
 
-function getProducts() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : defaultProducts;
+async function getProducts() {
+
+    const snapshot = await db.ref("products").once("value");
+
+    return snapshot.val()
+        ? Object.values(snapshot.val())
+        : defaultProducts;
 }
 
-function saveProducts(products) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+async function saveProducts(products) {
+
+    const updates = {};
+
+    products.forEach(product => {
+        updates[product.id] = product;
+    });
+
+    await db.ref("products").set(updates);
+
     renderProducts();
     updateAdminTable();
 }
@@ -54,7 +82,7 @@ function saveProducts(products) {
    RENDER PRODUTOS
 ======================= */
 
-function renderProducts() {
+async function renderProducts() {
 
     const products = getProducts();
 
@@ -436,6 +464,6 @@ function scrollToSection(id) {
         .scrollIntoView({ behavior: 'smooth' });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderProducts();
+document.addEventListener('DOMContentLoaded', async () => {
+    await renderProducts();
 });
