@@ -497,7 +497,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 const admins = [
-    "marllysonsn@gmail.com"
+    "marllysonsn@gmail.com",
+    "dhboutiquee@gmail.com"
 ];
 
 function loginWithGoogle(){
