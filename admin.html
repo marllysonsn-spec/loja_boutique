@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin - Boutique DH</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+<body>
+
+<script>
+
+const senha = prompt("Digite a senha do admin");
+
+if(senha !== "boutique2026"){
+    document.body.innerHTML = "<h1 style='padding:40px'>Acesso negado</h1>";
+}
+
+</script>
+
+<div id="adminPanel" class="admin-panel active">
+
+    <div class="admin-container">
+
+        <div class="admin-top">
+
+            <h2>Painel Administrativo</h2>
+
+            <a href="index.html">
+                <button class="close-admin-btn">
+                    Voltar para loja
+                </button>
+            </a>
+
+        </div>
+
+        <div class="admin-tabs">
+
+            <button class="admin-tab active"
+                onclick="switchAdminTab(event, 'produtos')">
+
+                Produtos
+
+            </button>
+
+            <button class="admin-tab"
+                onclick="switchAdminTab(event, 'adicionar')">
+
+                Adicionar Produto
+
+            </button>
+
+        </div>
+
+        <!-- PRODUTOS -->
+        <div id="tab-produtos" class="tab-content active">
+
+            <table class="products-table">
+
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Desconto</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productsTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ADICIONAR -->
+        <div id="tab-adicionar" class="tab-content">
+
+            <form class="product-form" id="formAddProduct">
+
+                <div class="form-group">
+
+                    <label>Seção do produto</label>
+
+                    <select id="prodSection" required>
+                        <option value="lancamentos">Lançamentos</option>
+                        <option value="ofertas">Ofertas</option>
+                    </select>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="prodName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preço</label>
+                        <input type="number" id="prodPrice" required>
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label>Desconto (%)</label>
+                        <input type="number" id="prodDiscount">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Emoji</label>
+                        <input type="text" id="prodEmoji">
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Imagem do produto</label>
+
+                    <input type="file"
+                        id="prodImages"
+                        accept="image/*"
+                        multiple>
+
+                    <div class="preview-images"
+                        id="imagePreview">
+
+                    </div>
+
+                </div>
+
+                <button type="submit"
+                    class="submit-btn"
+                    id="submitBtn">
+
+                    Adicionar produto
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
