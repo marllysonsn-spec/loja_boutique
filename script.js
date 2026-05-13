@@ -490,7 +490,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         await renderProducts();
     }
 
-  
 
 });
 
@@ -521,7 +520,7 @@ function loginWithGoogle(){
                 document.getElementById('adminPanel')
                     .style.display = 'block';
 
-                updateAdminTable();
+               
 
             } else {
 
