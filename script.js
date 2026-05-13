@@ -490,9 +490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await renderProducts();
     }
 
-    if(document.getElementById('productsTableBody')){
-        await updateAdminTable();
-    }
+  
 
 });
 
