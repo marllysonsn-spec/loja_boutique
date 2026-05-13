@@ -59,9 +59,21 @@ async function getProducts() {
 
     const snapshot = await db.ref("products").once("value");
 
-    return snapshot.val()
-        ? Object.values(snapshot.val())
-        : defaultProducts;
+    const data = snapshot.val();
+
+    console.log("FIREBASE DATA:", data);
+
+    if (!data) {
+        return defaultProducts;
+    }
+
+    // se já for array
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    // se for objeto
+    return Object.values(data);
 }
 
 async function saveProducts(products) {
