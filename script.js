@@ -1,5 +1,5 @@
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
+  apiKey: "AIzaSyClZWD_AtYeBkWueBJ5K8CjMPJc5nY7YsU",
   authDomain: "projeto-boutique.firebaseapp.com",
   databaseURL: "https://projeto-boutique-default-rtdb.firebaseio.com",
   projectId: "projeto-boutique",
@@ -74,8 +74,8 @@ async function saveProducts(products) {
 
     await db.ref("products").set(updates);
 
-    renderProducts();
-    updateAdminTable();
+    await renderProducts();
+    await updateAdminTable();
 }
 
 /* =======================
@@ -84,7 +84,7 @@ async function saveProducts(products) {
 
 async function renderProducts() {
 
-    const products = getProducts();
+    const products = await getProducts();
 
     const lancamentosGrid = document.getElementById('lancamentosGrid');
     const descontosGrid = document.getElementById('descontosGrid');
@@ -234,7 +234,7 @@ function closeProductModal(){
    ADMIN PANEL
 ======================= */
 
-function toggleAdmin() {
+async function toggleAdmin(){
 
     const customerView = document.getElementById('customerView');
     const adminPanel = document.getElementById('adminPanel');
@@ -245,7 +245,7 @@ function toggleAdmin() {
     } else {
         adminPanel.classList.add('active');
         customerView.style.display = 'none';
-        updateAdminTable();
+        await updateAdminTable();
     }
 }
 
@@ -253,13 +253,15 @@ function toggleAdmin() {
    TABELA ADMIN
 ======================= */
 
-function updateAdminTable() {
+async function updateAdminTable() {
 
     const tbody = document.getElementById('productsTableBody');
 
     tbody.innerHTML = '';
 
-    getProducts().forEach(product => {
+    const products = await getProducts();
+
+    products.forEach(product => {
 
         const tr = document.createElement('tr');
 
@@ -342,9 +344,9 @@ function handleSubmit(event) {
    SAVE PRODUCT
 ======================= */
 
-function saveProduct(imagesArray) {
+async function saveProduct(imagesArray) {
 
-    const products = getProducts();
+    const products = await getProducts();
 
     const productData = {
         id: editMode ? editId : Date.now(),
@@ -373,7 +375,7 @@ function saveProduct(imagesArray) {
         products.push(productData);
     }
 
-    saveProducts(products);
+    await saveProducts(products);
 
     document.getElementById('formAddProduct').reset();
 
@@ -384,9 +386,11 @@ function saveProduct(imagesArray) {
    EDIT PRODUCT
 ======================= */
 
-function editProduct(id) {
+async function editProduct(id){
 
-    const product = getProducts().find(p => p.id === id);
+    const products = await getProducts();
+
+    const product = products.find(p => p.id === id);
 
     document.getElementById('prodName').value = product.name;
     document.getElementById('prodPrice').value = product.price;
@@ -432,13 +436,15 @@ function renderImagePreview(images){
    DELETE
 ======================= */
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
 
     if (!confirm('Deseja excluir este produto?')) return;
 
-    const updated = getProducts().filter(p => p.id !== id);
+    const products = await getProducts();
 
-    saveProducts(updated);
+    const updated = products.filter(p => p.id !== id);
+
+    await saveProducts(updated);
 }
 
 /* =======================
