@@ -495,3 +495,77 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 });
+
+
+
+
+const admins = [
+    "marllysonsn@gmail.com"
+];
+
+function loginWithGoogle(){
+
+    const provider =
+        new firebase.auth.GoogleAuthProvider();
+
+    firebase.auth()
+        .signInWithPopup(provider)
+
+        .then((result) => {
+
+            const user = result.user;
+
+            if(admins.includes(user.email)){
+
+                document.getElementById('loginScreen')
+                    .style.display = 'none';
+
+                document.getElementById('adminPanel')
+                    .style.display = 'block';
+
+                updateAdminTable();
+
+            } else {
+
+                alert("Acesso não autorizado");
+
+                firebase.auth().signOut();
+            }
+
+        })
+
+        .catch((error) => {
+
+            console.log(error);
+
+            alert("Erro ao fazer login");
+        });
+}
+
+
+firebase.auth().onAuthStateChanged(user => {
+
+    const login =
+        document.getElementById('loginScreen');
+
+    const admin =
+        document.getElementById('adminPanel');
+
+    if(user && admins.includes(user.email)){
+
+        if(login) login.style.display = 'none';
+
+        if(admin){
+            admin.style.display = 'block';
+            updateAdminTable();
+        }
+
+    } else {
+
+        if(login) login.style.display = 'flex';
+
+        if(admin){
+            admin.style.display = 'none';
+        }
+    }
+});
