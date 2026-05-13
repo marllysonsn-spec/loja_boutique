@@ -12,7 +12,7 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
-
+const isAdminPage = window.location.pathname.includes("admin");
 
 const STORAGE_KEY = 'modaBellaProducts';
 
@@ -306,9 +306,11 @@ async function updateAdminTable() {
    UPLOAD + EDIT
 ======================= */
 
-document
-    .getElementById('formAddProduct')
-    .addEventListener('submit', handleSubmit);
+const form = document.getElementById('formAddProduct');
+
+if(form){
+    form.addEventListener('submit', handleSubmit);
+}
 
 function handleSubmit(event) {
 
@@ -483,5 +485,13 @@ function scrollToSection(id) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await renderProducts();
+
+    if(document.getElementById('lancamentosGrid')){
+        await renderProducts();
+    }
+
+    if(document.getElementById('productsTableBody')){
+        await updateAdminTable();
+    }
+
 });
