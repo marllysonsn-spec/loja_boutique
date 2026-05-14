@@ -496,6 +496,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
+const admins = [
+    "marllysonsn@gmail.com",
+    "dhboutiquee@gmail.com"
+];
+
 function loginWithGoogle(){
 
     const provider =
@@ -562,3 +567,15 @@ firebase.auth().onAuthStateChanged(user => {
         }
     }
 });
+
+
+function logout(){
+
+    firebase.auth().signOut()
+        .then(() => {
+
+            window.location.reload();
+
+        });
+
+}
