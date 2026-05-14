@@ -30,11 +30,11 @@
 </div>
 <script>
 
-const senha = prompt("Digite a senha do admin");
+/*const senha = prompt("Digite a senha do admin");
 
 if(senha !== "boutique2026"){
     document.body.innerHTML = "<h1 style='padding:40px'>Acesso negado</h1>";
-}
+}*/
 
 </script>
 
@@ -148,6 +148,39 @@ style="display:none;">
                         <label>Emoji</label>
                         <input type="text" id="prodEmoji">
                     </div>
+
+
+                    <div class="form-group">
+    <label>Resumo do produto</label>
+
+    <textarea
+        id="prodDescription"
+        rows="4"
+        placeholder="Descreva o produto...">
+    </textarea>
+</div>
+
+<div class="form-row">
+
+    <div class="form-group">
+        <label>Tamanhos</label>
+
+        <input
+            type="text"
+            id="prodSizes"
+            placeholder="P, M, G, GG">
+    </div>
+
+    <div class="form-group">
+        <label>Cores</label>
+
+        <input
+            type="text"
+            id="prodColors"
+            placeholder="Preto, Branco, Nude">
+    </div>
+
+</div>
 
                 </div>
 
