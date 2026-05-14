@@ -495,12 +495,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-
-const admins = [
-    "marllysonsn@gmail.com",
-    "dhboutiquee@gmail.com"
-];
-
 function loginWithGoogle(){
 
     const provider =
@@ -513,22 +507,11 @@ function loginWithGoogle(){
 
             const user = result.user;
 
-            if(admins.includes(user.email)){
+            document.getElementById('loginScreen')
+    .style.display = 'none';
 
-                document.getElementById('loginScreen')
-                    .style.display = 'none';
-
-                document.getElementById('adminPanel')
-                    .style.display = 'block';
-
-               
-
-            } else {
-
-                alert("Acesso não autorizado");
-
-                firebase.auth().signOut();
-            }
+document.getElementById('adminPanel')
+    .style.display = 'block';
 
         })
 
@@ -549,7 +532,7 @@ firebase.auth().onAuthStateChanged(user => {
     const admin =
         document.getElementById('adminPanel');
 
-    if(user && admins.includes(user.email)){
+    if(user){
 
         if(login) login.style.display = 'none';
 
