@@ -15,43 +15,6 @@
     <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<div id="productModal" class="product-modal">
-
-    <div class="modal-content">
-
-        <span class="close-modal" onclick="closeProductModal()">
-            ✖
-        </span>
-
-        <div class="modal-body">
-
-            <div class="modal-image">
-                <img id="modalImage" src="">
-            </div>
-
-            <div class="modal-info">
-
-                <h2 id="modalName"></h2>
-
-                <div id="modalOldPrice" class="old-price"></div>
-
-                <div id="modalPrice" class="product-price"></div>
-
-                <p class="modal-desc">
-                    Produto exclusivo da Boutique DH. Elegância e qualidade em cada detalhe.
-                </p>
-
-                <button class="product-btn">
-                    Comprar agora
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 
 
 
@@ -76,10 +39,12 @@
 
             <div class="header-actions">
 
-                <button class="cart-btn">
-                    🛍️ Carrinho
-                </button>
+                <button
+                   class="cart-btn"
+                    onclick="openCart()">
 
+                     🛍️ Carrinho
+                </button>
                 
 
             </div>
@@ -256,8 +221,6 @@
         </div>
 
     </footer>
-
-
 <div id="productModal" class="product-modal">
 
     <div class="modal-content">
@@ -266,24 +229,113 @@
             ✖
         </button>
 
-        <div class="modal-gallery">
+        <div class="modal-body">
 
-            <button class="nav left" onclick="prevImage()">
-                ‹
-            </button>
+            <div class="modal-gallery">
 
-            <img id="modalImage" src="" />
+                <button class="modal-nav left" onclick="prevImage()">
+                    ‹
+                </button>
 
-            <button class="nav right" onclick="nextImage()">
-                ›
+                <img id="modalImage" src="" />
+
+                <button class="modal-nav right" onclick="nextImage()">
+                     ›
+                </button>
+
+            </div>
+
+            <div class="modal-info">
+
+                <h2 id="modalName"></h2>
+
+                <p id="modalOldPrice" class="old-price"></p>
+
+                <p id="modalPrice"></p>
+
+               <p id="modalDescription"></p>
+
+<div class="product-options">
+
+    <div class="option-group">
+
+        <h4>Tamanhos</h4>
+
+        <div id="sizeOptions" class="options-list"></div>
+
+    </div>
+
+    <div class="option-group">
+
+        <h4>Cores</h4>
+
+        <div id="colorOptions" class="options-list"></div>
+
+    </div>
+
+</div>
+
+<div class="modal-actions">
+
+    <button
+        class="product-btn secondary-btn"
+        onclick="addToCart()">
+
+        Adicionar ao carrinho
+
+    </button>
+
+    <button
+        class="product-btn"
+        onclick="buyProduct()">
+
+        Comprar agora
+
+    </button>
+
+</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div id="cartModal" class="cart-modal">
+
+    <div class="cart-content">
+
+        <div class="cart-header">
+
+            <h2>Seu carrinho</h2>
+
+            <button
+                class="close-cart"
+                onclick="closeCart()">
+
+                ✖
+
             </button>
 
         </div>
 
-        <h2 id="modalName"></h2>
+        <div id="cartItems">
 
-        <p id="modalOldPrice" class="old-price"></p>
-        <p id="modalPrice"></p>
+            <p class="empty-cart">
+                Seu carrinho está vazio
+            </p>
+
+        </div>
+
+        <button
+    class="checkout-btn"
+    id="checkoutBtn"
+    onclick="checkoutWhatsApp()">
+
+    Comprar 0 produtos
+
+</button>
 
     </div>
 
