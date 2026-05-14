@@ -25,6 +25,11 @@ let editImages = [];
 // galeria do modal cliente
 let currentImages = [];
 let currentIndex = 0;
+let cart = [];
+
+let selectedSize = '';
+let selectedColor = '';
+let currentProduct = null;
 
 /* =======================
    PRODUTOS PADRÃO
@@ -96,10 +101,18 @@ async function saveProducts(products) {
 
 async function renderProducts() {
 
-    const products = await getProducts();
+    const lancamentosGrid =
+        document.getElementById('lancamentosGrid');
 
-    const lancamentosGrid = document.getElementById('lancamentosGrid');
-    const descontosGrid = document.getElementById('descontosGrid');
+    const descontosGrid =
+        document.getElementById('descontosGrid');
+
+    // se não existir a grid, para a função
+    if(!lancamentosGrid || !descontosGrid){
+        return;
+    }
+
+    const products = await getProducts();
 
     lancamentosGrid.innerHTML = '';
     descontosGrid.innerHTML = '';
@@ -179,6 +192,11 @@ async function renderProducts() {
 
 function openProductModal(product){
 
+    currentProduct = product;
+
+    selectedSize = '';
+    selectedColor = '';
+
     const modal = document.getElementById('productModal');
 
     currentImages = product.images || [];
@@ -190,6 +208,15 @@ function openProductModal(product){
 
     document.getElementById('modalPrice').innerText =
         "R$ " + product.price.toFixed(2).replace('.', ',');
+
+        const sizeOptions =
+    document.getElementById('sizeOptions');
+
+const colorOptions =
+    document.getElementById('colorOptions');
+
+sizeOptions.innerHTML = '';
+colorOptions.innerHTML = '';
 
     const oldPriceEl = document.getElementById('modalOldPrice');
 
@@ -205,6 +232,79 @@ function openProductModal(product){
     }
 
     modal.classList.add('active');
+
+    document.getElementById('modalDescription')
+    .innerText = product.description || '';
+
+    if(product.sizes){
+
+    product.sizes.split(',').forEach(size => {
+
+        sizeOptions.innerHTML += `
+    <button
+        class="option-btn"
+        onclick="selectOption(this, 'size')">
+
+        ${size.trim()}
+
+    </button>
+`;
+
+    });
+if(product.colors){
+
+    product.colors.split(',').forEach(color => {
+
+        colorOptions.innerHTML += `
+            <button
+                class="option-btn"
+                onclick="selectOption(this, 'color')">
+
+                ${color.trim()}
+
+            </button>
+        `;
+
+    });
+
+}
+
+document.getElementById('buyNowBtn')
+    .onclick = () => buyNow(product);
+
+document.getElementById('addCartBtn')
+    .onclick = () => addToCart(product);
+}
+
+if(product.colors){
+
+    product.colors.split(',').forEach(color => {
+
+        colorOptions.innerHTML += `
+    <button
+        class="option-btn"
+        onclick="selectOption(this, 'color')">
+
+        ${color.trim()}
+
+    </button>
+`;
+
+    });
+
+}
+
+document.getElementById('modalSizes')
+    .innerText =
+    product.sizes
+        ? "Tamanhos: " + product.sizes
+        : '';
+
+document.getElementById('modalColors')
+    .innerText =
+    product.colors
+        ? "Cores: " + product.colors
+        : '';
 }
 
 function updateModalImage(){
@@ -240,6 +340,37 @@ function prevImage(){
 function closeProductModal(){
     document.getElementById('productModal')
         .classList.remove('active');
+}
+
+function addToCart(product){
+
+    const selectedSize =
+        document.querySelector('.size-option.selected');
+
+    const selectedColor =
+        document.querySelector('.color-option.selected');
+
+    if(!selectedSize || !selectedColor){
+
+        alert("Selecione tamanho e cor");
+
+        return;
+    }
+
+    const item = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0] || '',
+        size: selectedSize.innerText,
+        color: selectedColor.innerText
+    };
+
+    cart.push(item);
+
+    updateCartUI();
+
+    alert("Produto adicionado ao carrinho!");
 }
 
 /* =======================
@@ -363,14 +494,35 @@ async function saveProduct(imagesArray) {
     const products = await getProducts();
 
     const productData = {
-        id: editMode ? editId : Date.now(),
-        name: document.getElementById('prodName').value,
-        price: parseFloat(document.getElementById('prodPrice').value),
-        discount: parseFloat(document.getElementById('prodDiscount').value) || 0,
-        emoji: document.getElementById('prodEmoji').value || '📦',
-        images: imagesArray,
-        section: document.getElementById('prodSection').value
-    };
+    id: editMode ? editId : Date.now(),
+
+    name: document.getElementById('prodName').value,
+
+    price: parseFloat(
+        document.getElementById('prodPrice').value
+    ),
+
+    discount: parseFloat(
+        document.getElementById('prodDiscount').value
+    ) || 0,
+
+    emoji:
+        document.getElementById('prodEmoji').value || '📦',
+
+    description:
+        document.getElementById('prodDescription').value,
+
+    sizes:
+        document.getElementById('prodSizes').value,
+
+    colors:
+        document.getElementById('prodColors').value,
+
+    images: imagesArray,
+
+    section:
+        document.getElementById('prodSection').value
+};
 
     if (editMode) {
 
@@ -409,7 +561,15 @@ async function editProduct(id){
     document.getElementById('prodName').value = product.name;
     document.getElementById('prodPrice').value = product.price;
     document.getElementById('prodDiscount').value = product.discount;
-    document.getElementById('prodEmoji').value = product.emoji;
+    
+    document.getElementById('prodDescription').value =
+    product.description || '';
+
+document.getElementById('prodSizes').value =
+    product.sizes || '';
+
+document.getElementById('prodColors').value =
+    product.colors || '';
     document.getElementById('prodSection').value = product.section || 'lancamentos';
 
     editImages = product.images || [];
@@ -561,4 +721,243 @@ function logout(){
 
         });
 
+}
+
+
+function selectOption(button, type){
+
+    const container =
+        button.parentElement;
+
+    container
+        .querySelectorAll('.option-btn')
+        .forEach(btn => {
+
+            btn.classList.remove('active');
+
+        });
+
+    button.classList.add('active');
+
+    if(type === 'size'){
+        selectedSize = button.innerText;
+    }
+
+    if(type === 'color'){
+        selectedColor = button.innerText;
+    }
+}
+
+
+
+function buyProduct(){
+
+    if(!selectedSize){
+
+        alert("Selecione um tamanho");
+
+        return;
+    }
+
+    if(!selectedColor){
+
+        alert("Selecione uma cor");
+
+        return;
+    }
+
+    const phone =
+        "5521971925807";
+    const productLink = window.location.href;
+    const message = `
+Olá! Tenho interesse neste produto:
+
+ Produto: ${currentProduct.name}
+
+ Preço: R$ ${currentProduct.price
+    .toFixed(2)
+    .replace('.', ',')}
+
+ Tamanho: ${selectedSize}
+
+ Cor: ${selectedColor}
+
+ Produto:
+${productLink}
+`;
+
+    const url =
+        `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, '_blank');
+}
+
+function addToCart(){
+
+    if(!selectedSize){
+
+        alert("Selecione um tamanho");
+        return;
+    }
+
+    if(!selectedColor){
+
+        alert("Selecione uma cor");
+        return;
+    }
+
+    const item = {
+
+        id: currentProduct.id,
+
+        name: currentProduct.name,
+
+        price: currentProduct.price,
+
+        image: currentProduct.images?.[0] || '',
+
+        size: selectedSize,
+
+        color: selectedColor
+
+    };
+
+    cart.push(item);
+
+    updateCartUI();
+
+    alert("Produto adicionado ao carrinho!");
+
+}
+
+function updateCartUI(){
+
+    const cartItems =
+        document.getElementById('cartItems');
+
+    if(!cartItems) return;
+
+    cartItems.innerHTML = '';
+
+    cart.forEach((item, index) => {
+
+        cartItems.innerHTML += `
+
+            <div class="cart-item">
+
+                <input
+                    type="checkbox"
+                    class="cart-check"
+                    onchange="updateCheckoutButton()"
+                    data-index="${index}">
+
+                <img src="${item.image}" />
+
+                <div class="cart-item-info">
+
+                    <h4>${item.name}</h4>
+
+                    <p>Tamanho: ${item.size}</p>
+
+                    <p>Cor: ${item.color}</p>
+
+                    <strong>
+                        R$ ${item.price.toFixed(2).replace('.', ',')}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        `;
+    });
+
+    updateCheckoutButton();
+}
+
+function updateCheckoutButton(){
+
+    const checked =
+        document.querySelectorAll('.cart-check:checked');
+
+    const button =
+        document.getElementById('checkoutBtn');
+
+    const total = checked.length;
+
+    button.innerText =
+        `Comprar ${total} produto${total !== 1 ? 's' : ''}`;
+}
+
+
+
+function openCart(){
+
+    document.getElementById('cartModal')
+        .classList.add('active');
+}
+
+function closeCart(){
+
+    document.getElementById('cartModal')
+        .classList.remove('active');
+}
+
+
+function checkoutWhatsApp(){
+
+    const checked =
+        document.querySelectorAll('.cart-check:checked');
+
+    if(checked.length === 0){
+
+        alert("Selecione pelo menos um produto");
+
+        return;
+    }
+
+    const phone = "5521971925807";
+
+    let message =
+`Olá! Tenho interesse nos seguintes produtos:
+
+`;
+
+    checked.forEach(check => {
+
+        const index =
+            check.dataset.index;
+
+        const item =
+            cart[index];
+
+        message +=
+`
+━━━━━━━━━━━━━━━
+
+ Produto: ${item.name}
+
+ Tamanho: ${item.size}
+
+ Cor: ${item.color}
+
+ Preço:
+R$ ${item.price.toFixed(2).replace('.', ',')}
+
+ Produto:
+${window.location.href}
+
+`;
+    });
+
+    message += `
+━━━━━━━━━━━━━━━
+
+Aguardo atendimento 
+`;
+
+    const url =
+`https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, '_blank');
 }
