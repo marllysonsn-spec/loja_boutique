@@ -39,13 +39,19 @@
 
 <div class="header-actions">
 
-    <div id="userBox" class="user-box">
-        <span id="userGreeting"></span>
+<div id="userBox" class="user-box" style="display:none;">
 
-        <button onclick="logoutCustomer()" class="cart-btn">
-    Sair
+    <span id="userGreeting"></span>
+
+    <button onclick="window.location.href='profile.html'" class="cart-btn">
+    👤 Perfil
 </button>
-    </div>
+
+    <button onclick="logoutCustomer()" class="cart-btn">
+        Sair
+    </button>
+
+</div>
 
     <button
         id="loginBtn"
@@ -353,6 +359,8 @@
 
 </div>
 
+
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -360,7 +368,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
     <!-- JS -->
-    <script src="script.js"></script>
+<script src="script.js"></script>
 
 
 
