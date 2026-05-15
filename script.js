@@ -26,10 +26,29 @@ let editImages = [];
 let currentImages = [];
 let currentIndex = 0;
 let cart = [];
+const CART_KEY = "boutique_cart";
+let currentUser = null;
 
 let selectedSize = '';
 let selectedColor = '';
 let currentProduct = null;
+
+function loadLocalCart() {
+
+    const saved = localStorage.getItem(CART_KEY);
+
+    if (saved) {
+        cart = JSON.parse(saved);
+    } else {
+        cart = [];
+    }
+
+    updateCartUI();
+}
+
+function saveLocalCart() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
 
 /* =======================
    PRODUTOS PADRÃO
@@ -373,6 +392,38 @@ function addToCart(product){
     alert("Produto adicionado ao carrinho!");
 }
 
+function saveCartToFirebase() {
+
+    if (!currentUser) return;
+
+    firebase.database()
+        .ref("carts/" + currentUser.uid)
+        .set({
+            items: cart
+        });
+}
+
+function loadUserCart(uid) {
+
+    firebase.database()
+        .ref("carts/" + uid)
+        .once("value")
+        .then(snapshot => {
+
+            const data = snapshot.val();
+
+            if (data && data.items) {
+
+                // 🔥 mescla Firebase + local
+                cart = [...cart, ...data.items];
+
+                saveLocalCart();
+                updateCartUI();
+            }
+
+        });
+}
+
 /* =======================
    ADMIN PANEL
 ======================= */
@@ -645,12 +696,12 @@ function scrollToSection(id) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-
+    
     if(document.getElementById('lancamentosGrid')){
         await renderProducts();
     }
 
-
+    loadLocalCart();
 });
 
 
@@ -686,26 +737,53 @@ document.getElementById('adminPanel')
 
 firebase.auth().onAuthStateChanged(user => {
 
+    updateAuthUI(user);
+
     const login =
         document.getElementById('loginScreen');
 
     const admin =
         document.getElementById('adminPanel');
 
-    if(user){
+    // 🔥 AQUI ENTRA SUA LÓGICA DO CLIENTE
+    if (user) {
 
-        if(login) login.style.display = 'none';
+        if (user) {
 
-        if(admin){
+    currentUser = user;
+
+    loadUserCart(user.uid);
+
+    // 🔥 sincroniza local → Firebase
+    syncLocalCartToFirebase();
+
+} 
+
+        currentUser = user;
+        loadUserCart(user.uid);
+
+    } else {
+
+        currentUser = null;
+        cart = [];
+        updateCartUI();
+    }
+
+    // 🔥 parte do ADMIN (você já tem isso)
+    if (user) {
+
+        if (login) login.style.display = 'none';
+
+        if (admin) {
             admin.style.display = 'block';
             updateAdminTable();
         }
 
     } else {
 
-        if(login) login.style.display = 'flex';
+        if (login) login.style.display = 'flex';
 
-        if(admin){
+        if (admin) {
             admin.style.display = 'none';
         }
     }
@@ -825,8 +903,12 @@ function addToCart(){
     cart.push(item);
 
     updateCartUI();
+    saveLocalCart();
+    saveCartToFirebase();
 
     alert("Produto adicionado ao carrinho!");
+
+   
 
 }
 
@@ -960,4 +1042,61 @@ Aguardo atendimento
 `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
     window.open(url, '_blank');
+}
+
+
+
+
+
+function loginCustomer() {
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    firebase.auth()
+        .signInWithPopup(provider)
+        .then(result => {
+            console.log("Logado:", result.user.email);
+        })
+        .catch(err => {
+            console.log(err);
+            alert("Erro ao logar");
+        });
+}
+
+function logoutCustomer() {
+
+    firebase.auth().signOut();
+}
+
+function syncLocalCartToFirebase() {
+
+    if (!currentUser) return;
+
+    firebase.database()
+        .ref("carts/" + currentUser.uid)
+        .set({
+            items: cart
+        });
+}
+
+function updateAuthUI(user) {
+
+    const loginBtn = document.getElementById("loginBtn");
+    const userBox = document.getElementById("userBox");
+    const userGreeting = document.getElementById("userGreeting");
+
+    if (user) {
+
+        loginBtn.style.display = "none";
+        userBox.style.display = "flex";
+
+        const name = (user.displayName || "cliente").split(" ")[0];
+
+        userGreeting.innerText = `Boas compras, ${name}`;
+
+    } else {
+
+        loginBtn.style.display = "inline-block";
+        userBox.style.display = "none";
+    }
 }
