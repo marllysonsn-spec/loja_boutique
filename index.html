@@ -37,17 +37,29 @@
                 <a href="#">Contato</a>
             </nav>
 
-            <div class="header-actions">
+<div class="header-actions">
 
-                <button
-                   class="cart-btn"
-                    onclick="openCart()">
+    <div id="userBox" class="user-box">
+        <span id="userGreeting"></span>
 
-                     🛍️ Carrinho
-                </button>
-                
+        <button onclick="logoutCustomer()" class="cart-btn">
+    Sair
+</button>
+    </div>
 
-            </div>
+    <button
+        id="loginBtn"
+        onclick="loginCustomer()"
+        class="cart-btn">
+
+        👤 Entrar
+    </button>
+
+    <button class="cart-btn" onclick="openCart()">
+        🛍️ Carrinho
+    </button>
+
+</div>
 
         </div>
 
@@ -344,6 +356,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
     <!-- JS -->
     <script src="script.js"></script>
