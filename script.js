@@ -8,7 +8,9 @@ const firebaseConfig = {
   appId: "1:586822447202:web:19e4bc9f17158e88f1a13b"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 const db = firebase.database();
 
@@ -1092,7 +1094,7 @@ function updateAuthUI(user) {
         const firstName = (user.displayName || "cliente").split(" ")[0];
 
         if (userGreeting) {
-            userGreeting.innerText = `Boas compras, ${firstName}`;
+            userGreeting.innerText = `Olá, ${firstName}`;
         }
 
     } else {
@@ -1258,7 +1260,7 @@ function closeProfileEdit() {
 }
 
 
-/**/
+
 function saveProfileData() {
 
     const user = firebase.auth().currentUser;
