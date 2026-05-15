@@ -735,32 +735,23 @@ document.getElementById('adminPanel')
 }
 
 
-firebase.auth().onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(async user => {
 
     updateAuthUI(user);
 
-    const login =
-        document.getElementById('loginScreen');
+    const login = document.getElementById('loginScreen');
+    const admin = document.getElementById('adminPanel');
 
-    const admin =
-        document.getElementById('adminPanel');
-
-    // 🔥 AQUI ENTRA SUA LÓGICA DO CLIENTE
+    // ======================
+    // CLIENTE
+    // ======================
     if (user) {
 
-        if (user) {
-
-    currentUser = user;
-
-    loadUserCart(user.uid);
-
-    // 🔥 sincroniza local → Firebase
-    syncLocalCartToFirebase();
-
-} 
-
         currentUser = user;
-        loadUserCart(user.uid);
+
+        await loadUserCart(user.uid);
+
+        syncLocalCartToFirebase();
 
     } else {
 
@@ -769,22 +760,16 @@ firebase.auth().onAuthStateChanged(user => {
         updateCartUI();
     }
 
-    // 🔥 parte do ADMIN (você já tem isso)
-    if (user) {
+    // ======================
+    // ADMIN
+    // ======================
+    if (login) login.style.display = user ? 'none' : 'flex';
 
-        if (login) login.style.display = 'none';
+    if (admin) {
+        admin.style.display = user ? 'block' : 'none';
 
-        if (admin) {
-            admin.style.display = 'block';
-            updateAdminTable();
-        }
-
-    } else {
-
-        if (login) login.style.display = 'flex';
-
-        if (admin) {
-            admin.style.display = 'none';
+        if (user) {
+            await updateAdminTable();
         }
     }
 });
@@ -1085,6 +1070,9 @@ function updateAuthUI(user) {
     const userBox = document.getElementById("userBox");
     const userGreeting = document.getElementById("userGreeting");
 
+    // 🔥 SAFE GUARD (ESSENCIAL)
+    if (!loginBtn || !userBox) return;
+
     if (user) {
 
         loginBtn.style.display = "none";
@@ -1092,7 +1080,9 @@ function updateAuthUI(user) {
 
         const name = (user.displayName || "cliente").split(" ")[0];
 
-        userGreeting.innerText = `Boas compras, ${name}`;
+        if (userGreeting) {
+            userGreeting.innerText = `Boas compras, ${name}`;
+        }
 
     } else {
 
