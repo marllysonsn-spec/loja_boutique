@@ -85,7 +85,7 @@ firebase.auth().onAuthStateChanged(user => {
 
     // carregar carrinho
     loadProfileCart(user.uid);
-    loadProfileOrders(user.uid);
+    //loadProfileOrders(user.uid); ajustar futuramente para mostrar pedidos reais
 
     // 👇 AQUI ENTRA O PASSO 4
     firebase.database()
