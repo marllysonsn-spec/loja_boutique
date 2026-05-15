@@ -1432,3 +1432,40 @@ body{
 .checkout-btn:hover{
     opacity: 0.92;
 }
+
+.user-box {
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cart-btn.small {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+
+.user-box {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.user-box span {
+    white-space: nowrap;
+}
+
+.cart-btn.small {
+    padding: 8px 12px;
+    font-size: 12px;
+}
