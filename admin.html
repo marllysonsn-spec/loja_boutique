@@ -1,370 +1,222 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOUTIQUE DH</title>
 
-    <!-- GOOGLE FONTS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Admin - Boutique DH</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 
-
-
 <body>
+<div id="loginScreen" class="login-screen">
 
-    <!-- HEADER -->
-    <header class="header">
+    <div class="login-box">
 
-        <div class="header-container">
+        <h2>Área Administrativa</h2>
 
-            <div class="logo">
-    <img src="./logo_sem_fundo.png" alt="Logo Boutique DH" class="logo-img">
-    <span>BOUTIQUE DH</span>
-</div>
-
-            <nav class="nav">
-                <a href="#lancamentos">Lançamentos</a>
-                <a href="#descontos">Vendas</a>
-                <a href="#">Coleções</a>
-                <a href="#">Contato</a>
-            </nav>
-
-<div class="header-actions">
-
-    <div id="userBox" class="user-box">
-        <span id="userGreeting"></span>
-
-        <button onclick="logoutCustomer()" class="cart-btn">
-    Sair
-</button>
-    </div>
-
-    <button
-        id="loginBtn"
-        onclick="loginCustomer()"
-        class="cart-btn">
-
-        👤 Entrar
-    </button>
-
-    <button class="cart-btn" onclick="openCart()">
-        🛍️ Carrinho
-    </button>
-
-</div>
-
-        </div>
-
-    </header>
-
-    <!-- CLIENTE -->
-    <div id="customerView">
-
-        <!-- HERO -->
-        <section class="hero">
-
-            <!-- BACKGROUND BLUR -->
-            <div class="hero-bg-blur"></div>
-
-            <!-- WRAPPER DOS VIDEOS -->
-            <div class="hero-video-wrapper">
-
-                <video autoplay muted loop playsinline class="hero-video">
-                    <source src="./video.mp4" type="video/mp4">
-                </video>
-
-                <video autoplay muted loop playsinline class="hero-video">
-                    <source src="./video.mp4" type="video/mp4">
-                </video>
-
-                <video autoplay muted loop playsinline class="hero-video">
-                    <source src="./video.mp4" type="video/mp4">
-                </video>
-
-            </div>
-
-            <!-- OVERLAY -->
-            <div class="hero-overlay"></div>
-
-            <!-- CONTEÚDO -->
-            <div class="hero-content">
-
-                <span class="hero-tag">
-                    NOVA COLEÇÃO 2026
-                </span>
-
-                <h1>
-                    Elegância moderna para mulheres autênticas
-                </h1>
-
-                <p>
-                    Descubra peças sofisticadas, minimalistas e atemporais.
-                </p>
-
-                <div class="hero-buttons">
-
-                    <button onclick="scrollToSection('lancamentos')" class="hero-btn primary">
-                        Comprar agora
-                    </button>
-
-                    <button class="hero-btn secondary">
-                        Ver coleção
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- BENEFÍCIOS -->
-        <section class="benefits">
-
-            <div class="benefit-card">
-                <div class="benefit-icon">🚚</div>
-                <h3>Frete grátis</h3>
-                <p>Acima de R$399</p>
-            </div>
-
-            <div class="benefit-card">
-                <div class="benefit-icon">💳</div>
-                <h3>3x sem juros</h3>
-                <p>Pagamento facilitado</p>
-            </div>
-
-            <div class="benefit-card">
-                <div class="benefit-icon">🔄</div>
-                <h3>Troca fácil</h3>
-                <p>Até 7 dias</p>
-            </div>
-
-            <div class="benefit-card">
-                <div class="benefit-icon">✨</div>
-                <h3>Premium</h3>
-                <p>Qualidade selecionada</p>
-            </div>
-
-        </section>
-
-        <!-- PRODUTOS -->
-        <main class="container">
-
-            <section class="products-section">
-
-                <div class="section-header">
-                    <span>NOVIDADES</span>
-
-                    <h2 id="lancamentos">
-                        Lançamentos
-                    </h2>
-                </div>
-
-                <div class="products-grid" id="lancamentosGrid"></div>
-
-            </section>
-
-            <section class="products-section">
-
-                <div class="section-header">
-
-                    <span>OFERTAS</span>
-
-                    <h2 id="descontos">
-                        Vendas até 30% OFF
-                    </h2>
-
-                </div>
-
-                <div class="products-grid" id="descontosGrid"></div>
-
-            </section>
-
-        </main>
-
-    </div>
-
-
-
-    <!-- FOOTER -->
-    <footer class="footer">
-
-        <div class="footer-grid">
-
-            <div>
-                <h3>BOUTIQUE DH</h3>
-
-                <p>
-                    Moda feminina elegante e moderna.
-                </p>
-            </div>
-
-            <div>
-
-                <h4>Institucional</h4>
-
-                <a href="#">Quem somos</a>
-                <a href="#">Contato</a>
-                <a href="#">Políticas</a>
-
-            </div>
-
-            <div>
-
-                <h4>Ajuda</h4>
-
-                <a href="#">Trocas</a>
-                <a href="#">Entrega</a>
-                <a href="#">FAQ</a>
-
-            </div>
-
-        </div>
-
-        <div class="footer-bottom">
-            © 2026 BOUTIQUE DH
-        </div>
-
-    </footer>
-<div id="productModal" class="product-modal">
-
-    <div class="modal-content">
-
-        <button class="close-modal" onclick="closeProductModal()">
-            ✖
+        <button onclick="loginWithGoogle()" class="submit-btn">
+            Entrar com Google
         </button>
 
-        <div class="modal-body">
-
-            <div class="modal-gallery">
-
-                <button class="modal-nav left" onclick="prevImage()">
-                    ‹
-                </button>
-
-                <img id="modalImage" src="" />
-
-                <button class="modal-nav right" onclick="nextImage()">
-                     ›
-                </button>
-
-            </div>
-
-            <div class="modal-info">
-
-                <h2 id="modalName"></h2>
-
-                <p id="modalOldPrice" class="old-price"></p>
-
-                <p id="modalPrice"></p>
-
-               <p id="modalDescription"></p>
-
-<div class="product-options">
-
-    <div class="option-group">
-
-        <h4>Tamanhos</h4>
-
-        <div id="sizeOptions" class="options-list"></div>
-
     </div>
 
-    <div class="option-group">
+</div>
+<script>
 
-        <h4>Cores</h4>
+/*const senha = prompt("Digite a senha do admin");
 
-        <div id="colorOptions" class="options-list"></div>
+if(senha !== "boutique2026"){
+    document.body.innerHTML = "<h1 style='padding:40px'>Acesso negado</h1>";
+}*/
+
+</script>
+
+<div id="adminPanel"
+class="admin-panel"
+style="display:none;">
+
+    <div class="admin-container">
+
+       <div class="admin-top">
+
+    <h2>Painel Administrativo</h2>
+
+    <div style="display:flex; gap:10px;">
+
+        <a href="index.html">
+            <button class="close-admin-btn">
+                Voltar para loja
+            </button>
+        </a>
+
+        <button
+            onclick="logout()"
+            class="close-admin-btn">
+
+            Sair
+
+        </button>
 
     </div>
 
 </div>
 
-<div class="modal-actions">
+        <div class="admin-tabs">
 
-    <button
-        class="product-btn secondary-btn"
-        onclick="addToCart()">
+            <button class="admin-tab active"
+                onclick="switchAdminTab(event, 'produtos')">
 
-        Adicionar ao carrinho
+                Produtos
 
-    </button>
+            </button>
 
-    <button
-        class="product-btn"
-        onclick="buyProduct()">
+            <button class="admin-tab"
+                onclick="switchAdminTab(event, 'adicionar')">
 
-        Comprar agora
-
-    </button>
-
-</div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-<div id="cartModal" class="cart-modal">
-
-    <div class="cart-content">
-
-        <div class="cart-header">
-
-            <h2>Seu carrinho</h2>
-
-            <button
-                class="close-cart"
-                onclick="closeCart()">
-
-                ✖
+                Adicionar Produto
 
             </button>
 
         </div>
 
-        <div id="cartItems">
+        <!-- PRODUTOS -->
+        <div id="tab-produtos" class="tab-content active">
 
-            <p class="empty-cart">
-                Seu carrinho está vazio
-            </p>
+            <table class="products-table">
+
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Desconto</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productsTableBody"></tbody>
+
+            </table>
 
         </div>
 
-        <button
-    class="checkout-btn"
-    id="checkoutBtn"
-    onclick="checkoutWhatsApp()">
+        <!-- ADICIONAR -->
+        <div id="tab-adicionar" class="tab-content">
 
-    Comprar 0 produtos
+            <form class="product-form" id="formAddProduct">
 
-</button>
+                <div class="form-group">
+
+                    <label>Seção do produto</label>
+
+                    <select id="prodSection" required>
+                        <option value="lancamentos">Lançamentos</option>
+                        <option value="ofertas">Ofertas</option>
+                    </select>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="prodName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preço</label>
+                        <input type="number" id="prodPrice" required>
+                    </div>
+
+                </div>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label>Desconto (%)</label>
+                        <input type="number" id="prodDiscount">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Emoji</label>
+                        <input type="text" id="prodEmoji">
+                    </div>
+
+
+                    <div class="form-group">
+    <label>Resumo do produto</label>
+
+    <textarea
+        id="prodDescription"
+        rows="4"
+        placeholder="Descreva o produto...">
+    </textarea>
+</div>
+
+<div class="form-row">
+
+    <div class="form-group">
+        <label>Tamanhos</label>
+
+        <input
+            type="text"
+            id="prodSizes"
+            placeholder="P, M, G, GG">
+    </div>
+
+    <div class="form-group">
+        <label>Cores</label>
+
+        <input
+            type="text"
+            id="prodColors"
+            placeholder="Preto, Branco, Nude">
+    </div>
+
+</div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Imagem do produto</label>
+
+                    <input type="file"
+                        id="prodImages"
+                        accept="image/*"
+                        multiple>
+
+                    <div class="preview-images"
+                        id="imagePreview">
+
+                    </div>
+
+                </div>
+
+                <button type="submit"
+                    class="submit-btn"
+                    id="submitBtn">
+
+                    Adicionar produto
+
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
-    <!-- JS -->
-    <script src="script.js"></script>
-
-
-
-
+<script src="script.js"></script>
 
 </body>
 </html>
