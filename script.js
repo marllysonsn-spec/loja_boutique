@@ -1,3 +1,4 @@
+
 const firebaseConfig = {
   apiKey: "AIzaSyClZWD_AtYeBkWueBJ5K8CjMPJc5nY7YsU",
   authDomain: "projeto-boutique.firebaseapp.com",
@@ -18,6 +19,10 @@ const isAdminPage = window.location.pathname.includes("admin");
 
 const STORAGE_KEY = 'modaBellaProducts';
 
+const PRODUCTS_CACHE_KEY = "boutique_products_cache";
+const CACHE_TIME_KEY = "boutique_products_cache_time";
+const CACHE_DURATION = 1000 * 60 * 10;
+
 let editMode = false;
 let editId = null;
 
@@ -34,6 +39,38 @@ let currentUser = null;
 let selectedSize = '';
 let selectedColor = '';
 let currentProduct = null;
+
+async function compressImage(file) {
+
+    const options = {
+
+        maxSizeMB: 0.1,
+
+        maxWidthOrHeight: 800,
+
+        useWebWorker: true
+
+    };
+
+    const compressedFile =
+        await imageCompression(file, options);
+
+    return compressedFile;
+}
+
+function fileToBase64(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onload = () => resolve(reader.result);
+
+        reader.onerror = error => reject(error);
+    });
+}
 
 function loadLocalCart() {
 
@@ -81,9 +118,19 @@ const defaultProducts = [
    STORAGE
 ======================= */
 
-async function getProducts() {
+async function getProducts(section = null) {
 
-    const snapshot = await db.ref("products").once("value");
+    let ref = db.ref("products");
+
+    // se tiver seção
+    if (section) {
+
+        ref = ref
+            .orderByChild("section")
+            .equalTo(section);
+    }
+
+    const snapshot = await ref.once("value");
 
     const data = snapshot.val();
 
@@ -93,24 +140,17 @@ async function getProducts() {
         return defaultProducts;
     }
 
-    // se já for array
     if (Array.isArray(data)) {
         return data;
     }
 
-    // se for objeto
     return Object.values(data);
 }
 
-async function saveProducts(products) {
+async function saveProductToFirebase(productData) {
 
-    const updates = {};
-
-    products.forEach(product => {
-        updates[product.id] = product;
-    });
-
-    await db.ref("products").set(updates);
+    await db.ref("products/" + productData.id)
+        .set(productData);
 
     await renderProducts();
     await updateAdminTable();
@@ -119,7 +159,8 @@ async function saveProducts(products) {
 /* =======================
    RENDER PRODUTOS
 ======================= */
-
+let visibleLancamentos = 8;
+let visibleOfertas = 8;
 async function renderProducts() {
 
     const lancamentosGrid =
@@ -133,78 +174,211 @@ async function renderProducts() {
         return;
     }
 
-    const products = await getProducts();
+    const lancamentos =
+    await getProducts("lancamentos");
+
+    const ofertas =
+    await getProducts("ofertas");
 
     lancamentosGrid.innerHTML = '';
     descontosGrid.innerHTML = '';
 
-    products.forEach(product => {
+    // ======================
+// LANÇAMENTOS
+// ======================
 
-        const hasDiscount = product.discount > 0;
+lancamentos
+    .slice(0, visibleLancamentos)
+    .forEach(product => {
 
-        const oldPrice = (
-            product.price / (1 - product.discount / 100)
-        ).toFixed(2);
+    const hasDiscount = product.discount > 0;
 
-        const image = product.images?.[0];
+    const oldPrice = (
+        product.price / (1 - product.discount / 100)
+    ).toFixed(2);
 
-        const card = `
-            <div class="product-card">
+    const image = product.images?.[0];
 
-                ${hasDiscount ? `
-                    <div class="discount-badge">
-                        -${product.discount}%
-                    </div>
-                ` : ''}
+    const card = `
+        <div class="product-card">
 
-                <div class="product-image">
-
-                    ${
-                        image
-                        ? `<img src="${image}">`
-                        : `<div class="product-image-fallback">
-                            ${product.emoji || '📦'}
-                        </div>`
-                    }
-
+            ${hasDiscount ? `
+                <div class="discount-badge">
+                    -${product.discount}%
                 </div>
+            ` : ''}
 
-                <div class="product-info">
+            <div class="product-image">
 
-                    <div class="product-name">
-                        ${product.name}
-                    </div>
-
-                    ${
-                        hasDiscount
-                        ? `<div class="old-price">
-                            R$ ${oldPrice.replace('.', ',')}
-                        </div>`
-                        : ''
-                    }
-
-                    <div class="product-price">
-                        R$ ${product.price.toFixed(2).replace('.', ',')}
-                    </div>
-
-                    <button class="product-btn"
-                        onclick='openProductModal(${JSON.stringify(product)})'>
-                        Comprar agora
-                    </button>
-
-                </div>
+                ${
+                    image
+                    ? `<img
+    src="${image}"
+    loading="lazy">`
+                    : `<div class="product-image-fallback">
+                        ${product.emoji || '📦'}
+                    </div>`
+                }
 
             </div>
-        `;
 
-        if (product.section === 'ofertas') {
-            descontosGrid.innerHTML += card;
-        } else {
-            lancamentosGrid.innerHTML += card;
-        }
+            <div class="product-info">
 
-    });
+                <div class="product-name">
+                    ${product.name}
+                </div>
 
+                ${
+                    hasDiscount
+                    ? `<div class="old-price">
+                        R$ ${oldPrice.replace('.', ',')}
+                    </div>`
+                    : ''
+                }
+
+                <div class="product-price">
+                    R$ ${product.price.toFixed(2).replace('.', ',')}
+                </div>
+
+                <button class="product-btn"
+                    onclick='openProductModal(${JSON.stringify(product)})'>
+                    Comprar agora
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    lancamentosGrid.innerHTML += card;
+});
+
+// ======================
+// OFERTAS
+// ======================
+
+ofertas
+    .slice(0, visibleOfertas)
+    .forEach(product => {
+
+    const hasDiscount = product.discount > 0;
+
+    const oldPrice = (
+        product.price / (1 - product.discount / 100)
+    ).toFixed(2);
+
+    const image = product.images?.[0];
+
+    const card = `
+        <div class="product-card">
+
+            ${hasDiscount ? `
+                <div class="discount-badge">
+                    -${product.discount}%
+                </div>
+            ` : ''}
+
+            <div class="product-image">
+
+                ${
+                    image
+                    ? `<img
+    src="${image}"
+    loading="lazy">`
+                    : `<div class="product-image-fallback">
+                        ${product.emoji || '📦'}
+                    </div>`
+                }
+
+            </div>
+
+            <div class="product-info">
+
+                <div class="product-name">
+                    ${product.name}
+                </div>
+
+                ${
+                    hasDiscount
+                    ? `<div class="old-price">
+                        R$ ${oldPrice.replace('.', ',')}
+                    </div>`
+                    : ''
+                }
+
+                <div class="product-price">
+                    R$ ${product.price.toFixed(2).replace('.', ',')}
+                </div>
+
+                <button class="product-btn"
+                    onclick='openProductModal(${JSON.stringify(product)})'>
+                    Comprar agora
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    descontosGrid.innerHTML += card;
+});
+
+
+
+}
+
+// ======================
+// BOTÃO LANÇAMENTOS
+// ======================
+
+const loadMoreLancamentosBtn =
+    document.getElementById('loadMoreLancamentosBtn');
+
+if(loadMoreLancamentosBtn){
+
+    if(visibleLancamentos >= lancamentos.length){
+
+        loadMoreLancamentosBtn.style.display = 'none';
+
+    } else {
+
+        loadMoreLancamentosBtn.style.display = 'block';
+
+    }
+}
+
+// ======================
+// BOTÃO OFERTAS
+// ======================
+
+const loadMoreOfertasBtn =
+    document.getElementById('loadMoreOfertasBtn');
+
+if(loadMoreOfertasBtn){
+
+    if(visibleOfertas >= ofertas.length){
+
+        loadMoreOfertasBtn.style.display = 'none';
+
+    } else {
+
+        loadMoreOfertasBtn.style.display = 'block';
+
+    }
+}
+
+function loadMoreLancamentos(){
+
+    visibleLancamentos += 8;
+
+    renderProducts();
+}
+
+function loadMoreOfertas(){
+
+    visibleOfertas += 8;
+
+    renderProducts();
 }
 
 /* =======================
@@ -506,15 +680,27 @@ function handleSubmit(event) {
     if (files.length > 0) {
 
         const newImages = [];
-        let loaded = 0;
+let loaded = 0;
 
-        for (let i = 0; i < files.length; i++) {
+for (let i = 0; i < files.length; i++) {
+
+    const file = files[i];
+
+    const options = {
+    maxSizeMB: 0.1,
+    maxWidthOrHeight: 700,
+    useWebWorker: true,
+    fileType: "image/webp"
+};
+    imageCompression(file, options)
+        .then(compressedFile => {
 
             const reader = new FileReader();
 
             reader.onload = function(e) {
 
                 newImages.push(e.target.result);
+
                 loaded++;
 
                 if (loaded === files.length) {
@@ -525,11 +711,13 @@ function handleSubmit(event) {
 
                     saveProduct(finalImages);
                 }
-
             };
 
-            reader.readAsDataURL(files[i]);
-        }
+            reader.readAsDataURL(compressedFile);
+
+        });
+
+}
 
     } else {
 
@@ -544,57 +732,48 @@ function handleSubmit(event) {
 
 async function saveProduct(imagesArray) {
 
-    const products = await getProducts();
-
     const productData = {
-    id: editMode ? editId : Date.now(),
 
-    name: document.getElementById('prodName').value,
+        id: editMode ? editId : Date.now(),
 
-    price: parseFloat(
-        document.getElementById('prodPrice').value
-    ),
+        name: document.getElementById('prodName').value,
 
-    discount: parseFloat(
-        document.getElementById('prodDiscount').value
-    ) || 0,
+        price: parseFloat(
+            document.getElementById('prodPrice').value
+        ),
 
-    emoji:
-        document.getElementById('prodEmoji').value || '📦',
+        discount: parseFloat(
+            document.getElementById('prodDiscount').value
+        ) || 0,
 
-    description:
-        document.getElementById('prodDescription').value,
+        emoji:
+            document.getElementById('prodEmoji').value || '📦',
 
-    sizes:
-        document.getElementById('prodSizes').value,
+        description:
+            document.getElementById('prodDescription').value,
 
-    colors:
-        document.getElementById('prodColors').value,
+        sizes:
+            document.getElementById('prodSizes').value,
 
-    images: imagesArray,
+        colors:
+            document.getElementById('prodColors').value,
 
-    section:
-        document.getElementById('prodSection').value
-};
+        images: imagesArray,
 
-    if (editMode) {
+        section:
+            document.getElementById('prodSection').value
+    };
 
-        const index = products.findIndex(p => p.id === editId);
-        products[index] = productData;
+    await saveProductToFirebase(productData);
 
-        editMode = false;
-        editId = null;
+    editMode = false;
+    editId = null;
+    editImages = [];
 
-        editImages = [];
+    document.getElementById('imagePreview').innerHTML = '';
 
-        document.getElementById('imagePreview').innerHTML = '';
-        document.getElementById('submitBtn').innerText = 'Adicionar produto';
-
-    } else {
-        products.push(productData);
-    }
-
-    await saveProducts(products);
+    document.getElementById('submitBtn').innerText =
+        'Adicionar produto';
 
     document.getElementById('formAddProduct').reset();
 
@@ -667,11 +846,10 @@ async function deleteProduct(id) {
 
     if (!confirm('Deseja excluir este produto?')) return;
 
-    const products = await getProducts();
+    await db.ref("products/" + id).remove();
 
-    const updated = products.filter(p => p.id !== id);
-
-    await saveProducts(updated);
+    await renderProducts();
+    await updateAdminTable();
 }
 
 /* =======================
