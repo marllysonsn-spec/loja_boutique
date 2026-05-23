@@ -2189,3 +2189,42 @@ input,select,textarea{
         flex-shrink:0;
     }
 }
+
+.load-more-container{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin:40px 0 80px;
+}
+
+.load-more-btn{
+
+    background:#111;
+
+    color:white;
+
+    border:none;
+
+    padding:16px 36px;
+
+    border-radius:999px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    font-family:'Inter', sans-serif;
+}
+
+.load-more-btn:hover{
+
+    transform:translateY(-2px);
+
+    opacity:0.9;
+}
